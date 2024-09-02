@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign In</title>
+  <link rel="stylesheet" href="signstyles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+  <!--Header------------------------------------------------------------------------------->
+  <header id="main-header">
+    <h1 id="header-title">Izify - EasyFile & Text</h1>
+    <button id="homeBtn" onclick="goHome()" title="Home Page"><i class="fa-solid fa-house"></i></button>
+  </header>
+
+  <script>
+      function goHome() {
+      window.location.href = 'index.html';
+  }
+  </script>
+
+<body>
+  <div class="form-wrapper">
+    <div class="logoformParent">
+      <div class="logoform">
+        <img id="logo2" src="logo2.png" alt="">
+        <img id="logo" src="logo.png" alt="">
+      </div>
+    </div>
+    <div class="parentform-container">
+      <div class="form-container">
+        <div class="logoform2">
+          <img id="logo3" src="logo.png" alt="">
+        </div>
+        <form id="MainForm" class="w-90 m-1">
+          <h2 class="mb-3 text-center" style="font-size: 22px;">Sign in Admin Account</h2>
+          <div class="form-group">
+            <label for="emailInp">Email Address</label>
+            <input type="email" id="emailInp" placeholder="Email Address">
+          </div>
+          <div class="form-group">
+            <label for="passwordInp">Password</label>
+            <input type="password" id="passwordInp" placeholder="Password">
+            <button type="button" class="eye-btn" id="togglePassword">Show Password</button>
+          </div>
+  
+          <label id="forgotpasslabel" style="cursor: pointer; display: block; text-decoration: underline; text-align: right; transition: color 0.1s;">
+            Forgot Password
+          </label>
+  
+          <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const togglePasswordButton = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('passwordInp');
+
+    togglePasswordButton.addEventListener('click', function () {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      this.textContent = type === 'password' ? 'Show Password' : 'Hide Password';
+    });
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+    import { getDatabase, ref, set, child, get } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+    
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDegHpAyVTt3eajfaOb9uZoXMvSDepK_DU",
+      authDomain: "easy-file-upload.firebaseapp.com",
+      databaseURL: "https://easy-file-upload-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "easy-file-upload",
+      storageBucket: "easy-file-upload.appspot.com",
+      messagingSenderId: "554423120767",
+      appId: "1:554423120767:web:d721461f9120ebbfd6604a"
+    };
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase();
+    const auth = getAuth(app);
+    const dbref = ref(db);
+
+    let EmailInp = document.getElementById('emailInp');
+    let PassInp = document.getElementById('passwordInp');
+    let MainForm = document.getElementById('MainForm');
+    let ForgotPassLabel = document.getElementById('forgotpasslabel');
+
+    let SignInUser = evt => {
+      evt.preventDefault();
+
+      signInWithEmailAndPassword(auth, EmailInp.value, PassInp.value)
+      .then((credentials) => {
+        console.log('admin signed in:', credentials.user.uid);  // Debugging: Log admin ID
+        get(child(dbref, 'AdminsAuthList/' + credentials.user.uid)).then((snapshot) => {
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            console.log('Admin data found:', userData);  // Debugging: Log Admin data
+            localStorage.setItem(`admin-info`, JSON.stringify({
+              adminname: userData.adminname,
+            }));
+            localStorage.setItem(`admin-creds`, JSON.stringify(credentials.user));
+            window.location.href = 'pageAdmin.html';
+          } else {
+            alert('Admin data does not exist in database.');
+            console.error('No data available for Admin:', credentials.user.uid);  // Debugging: Log missing data
+          }
+        }).catch((error) => {
+          alert('Error fetching Admin data.');
+          console.error('Database read error:', error);  // Debugging: Log database error
+        });
+      })
+      .catch((error) => {
+        alert(error.message);
+        console.error('Authentication error:', error.code, error.message);  // Debugging: Log authentication error
+      });
+    }
+
+    let ForgotPassword = () => {
+      sendPasswordResetEmail(auth, EmailInp.value)
+      .then(() => {
+        alert("A Password Reset Link has been sent to your email");
+      })
+      .catch((error) => {
+        console.log(error.code);
+        console.log(error.message);
+      })
+    }
+
+    MainForm.addEventListener('submit', SignInUser);
+    ForgotPassLabel.addEventListener('click', ForgotPassword);
+  </script>
+
+</body>
+
+</html>

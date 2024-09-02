@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home</title>
+  <link rel="stylesheet" href="signstyles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+  <!--Header------------------------------------------------------------------------------->
+  <header id="main-header">
+    <h1 id="header-title">Izify - EasyFile & Text</h1>
+  </header>
+
+
+
+  <body>
+    <div class="form-wrapper">
+      <div class="logoformParent">
+        <div class="logoform">
+          <img id="logo" src="logo.png" alt="">
+          <img id="logo2" src="logo2.png" alt="">
+        </div>
+      </div>
+      <div class="parentform-container">
+      <div class="form-container">
+        <div class="logoform2">
+          <img id="logo3" src="logo.png" alt="">
+        </div>
+
+        <div class="form-group">
+            <button id="Admin" class="pageBtn" onclick="goadminPage()">
+                 Sign In 
+            </button>
+            <button id="worker" class="pageBtn" onclick="goworkerPage()">
+                 Sign Up
+            </button>
+        </div>
+        <div class="form-group">
+            <button class="loginBtn" onclick="goregisterAdmin()">EasyFile & Text</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+    function goadminPage() {
+        window.location.href = 'inAdmin.html';
+    }
+    function goworkerPage() {
+        window.location.href = 'upAdmin.html';
+    }
+    function goregisterAdmin() {
+        window.location.href = 'pageAdmin.html';
+    }
+</script>
+
+</body>
+</html>
