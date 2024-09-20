@@ -33,9 +33,17 @@
     </div>
 
     <div class="main-container">
-        <label for="textArea">Save Your Text</label>
+        <button id="clearBtn">Clear</button>
         <textarea id="textArea" cols="30" rows="10"></textarea>
     </div>
+
+    <script>
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            var textArea = document.getElementById('textArea');
+            textArea.value = ''; // Clear the text
+            textArea.focus();    // Set focus on the textarea
+        });
+    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
@@ -132,7 +140,6 @@
                     downloadURL: downloadURL,
                     uploadedAt: new Date().toISOString()
                 }).then(() => {
-                    alert('File uploaded and metadata saved successfully!');
                     loadFiles(); // Reload the file list
                 }).catch((error) => {
                     console.error('Error saving file metadata:', error);
@@ -148,7 +155,6 @@
             fileElement.innerHTML = `
                 <p>
                     <a href="${downloadURL}" target="_blank">${fileName}</a>
-                    <button onclick="downloadFile('${downloadURL}')">Download</button>
                     <button onclick="deleteFile('${fileId}', '${fileName}')">Delete</button>
                 </p>`;
             fileListContainer.appendChild(fileElement);
@@ -169,7 +175,6 @@
                 deleteObject(storageReference).then(() => {
                     // Delete from database
                     remove(fileRef).then(() => {
-                        alert('File deleted successfully!');
                         loadFiles(); // Reload the file list
                     }).catch((error) => {
                         console.error('Error deleting file metadata:', error);

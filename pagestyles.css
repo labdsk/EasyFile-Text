@@ -127,7 +127,19 @@ body {
   background-color: #c82333;
 }
 
-
+#clearBtn {
+  padding: 10px 20px;
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #ffffff;
+  background-color: #5c7486;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
 
 
