@@ -212,9 +212,9 @@
 
                 row.innerHTML = `
                     <td>${fileName}</td>
-                    <td class="linkaction2"><a href="${downloadURL}" download="${fileName}" target="_blank">Download</a></td>
+                    <td class="linkaction2"><a href="${downloadURL}" download="${fileName}" target="_blank"><i class="fa-solid fa-download"></i></a></td>
                     <td class="linkaction2">
-                        <button class="deleteBtn" onclick="deleteFile('${fileId}', '${fileName}')">Delete</button>
+                        <button class="deleteBtn" onclick="deleteFile('${fileId}', '${fileName}')"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
 
