@@ -34,7 +34,6 @@
                         <tr>
                             <th class="filenameth2" style="border-bottom: 1px solid #ddd; padding: 8px; text-align: left;">File Name</th>
                             <th class="linkaction3" style="border-bottom: 1px solid #ddd; padding: 8px; text-align: left;">File Size (KB)</th>
-                            <th class="linkaction3" style="border-bottom: 1px solid #ddd; padding: 8px; text-align: left;">File Type</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -98,11 +97,6 @@
                         sizeCell.textContent = (file.size / 1024).toFixed(2); // KB
                         sizeCell.style.padding = "8px";
                         row.appendChild(sizeCell);
-        
-                        const typeCell = document.createElement("td");
-                        typeCell.textContent = file.type || "N/A";
-                        typeCell.style.padding = "8px";
-                        row.appendChild(typeCell);
         
                         fileTableBody.appendChild(row);
                     });
@@ -226,66 +220,71 @@
 
                 fileListBody.appendChild(row);
             }
-            
-            // Delete file function
-            window.deleteFile = (fileId, fileName) => {
-                const fileRef = ref(db, `AdminsAuthList/${currentUserUid}/uploadedFiles/${fileId}`);
-                const storageReference = storageRef(storage, `uploads/${currentUserUid}/${fileId}/${fileName}`);
 
-                // Delete from storage
-                deleteObject(storageReference).then(() => {
-                    // Delete from database
-                    remove(fileRef).then(() => {
-                        loadFiles(); // Reload the file list
-                    }).catch((error) => {
-                        console.error('Error deleting file metadata:', error);
-                    });
-                }).catch((error) => {
-                    console.error('Error deleting file:', error);
-                });
-            };
-
-
-            
             function loadFiles() {
-                const fileListBody = document.getElementById('fileListBody');
-                fileListBody.innerHTML = '';
+                if (currentUserUid) {
+                    const fileListRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/uploadedFiles');
 
-                const fileListRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/uploadedFiles');
-                onValue(fileListRef, (snapshot) => {
-                    snapshot.forEach((childSnapshot) => {
-                        const fileId = childSnapshot.key;
-                        const fileData = childSnapshot.val();
-                        displayFile(fileId, fileData.fileName, fileData.downloadURL);
+                    onValue(fileListRef, (snapshot) => {
+                        const fileListBody = document.getElementById('fileListBody');
+                        fileListBody.innerHTML = '';
+
+                        snapshot.forEach((childSnapshot) => {
+                            const fileData = childSnapshot.val();
+                            displayFile(childSnapshot.key, fileData.fileName, fileData.downloadURL);
+                        });
                     });
-                });
+                }
             }
 
-            document.getElementById('saveBtn').addEventListener('click', function() {
+            window.deleteFile = function (fileId, fileName) {
+                if (currentUserUid) {
+                    const fileRef = ref(db, `AdminsAuthList/${currentUserUid}/uploadedFiles/${fileId}`);
+                    const storageRefPath = storageRef(storage, `uploads/${currentUserUid}/${fileId}/${fileName}`);
+
+                    deleteObject(storageRefPath).then(() => {
+                        remove(fileRef).then(() => {
+                            loadFiles();
+                        }).catch((error) => {
+                            console.error('Error deleting file metadata:', error);
+                        });
+                    }).catch((error) => {
+                        console.error('Error deleting file from storage:', error);
+                    });
+                } else {
+                    alert('User is not authenticated.');
+                }
+            };
+
+            document.getElementById('saveBtn').addEventListener('click', () => {
                 const textArea = document.getElementById('textArea');
-                const textContent = textArea.value;
-                saveText(textContent);
-            });
+                if (textArea.value.trim() === '') {
+                    alert('Please enter some text before saving.');
+                    return;
+                }
 
+                const textRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/savedText');
 
-            function saveText(text) {
-                const textRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/text');
-                update(textRef, {
-                    content: text,
-                    updatedAt: new Date().toISOString()
+                set(textRef, {
+                    content: textArea.value.trim(),
+                    savedAt: new Date().toISOString()
+                }).then(() => {
+                    alert('Text saved successfully.');
                 }).catch((error) => {
                     console.error('Error saving text:', error);
                 });
-            }
+            });
 
             function loadText() {
-                const textRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/text');
-                onValue(textRef, (snapshot) => {
-                    const textData = snapshot.val();
-                    if (textData && textData.content) {
-                        document.getElementById('textArea').value = textData.content;
-                    }
-                });
+                if (currentUserUid) {
+                    const textRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/savedText');
+                    onValue(textRef, (snapshot) => {
+                        const data = snapshot.val();
+                        if (data && data.content) {
+                            document.getElementById('textArea').value = data.content;
+                        }
+                    });
+                }
             }
         </script>
     </div>
