@@ -27,7 +27,7 @@ body {
 
 #header-title {
   margin-left: 10px;
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   color: #ffffff;
 }
 
@@ -85,6 +85,7 @@ body {
 }
 .logoform2 {
   display: flex;
+  margin-bottom: 40px;
   justify-content: center;
   margin-top: -20px;
 }
@@ -204,7 +205,7 @@ body {
 /*------------------------------------------------------------------------*/
 
 .loginBtn {
-  background-color: #647b8b;
+  background-color: #4f6b80;
   color: #fff;
   display: block;
   width: 100%;
@@ -217,10 +218,12 @@ body {
   margin-bottom: 20px;
   text-align: center;
   margin-top: 5px;
+  transition: 0.2s ease;
 }
 
 .loginBtn:hover {
-  background-color: #536f8b;
+  transform: scale(1.02);
+  background-color: #3a536d;
   box-shadow: 0 4px 8px rgba(0, 91, 187, 0.2);
 }
 
@@ -324,7 +327,7 @@ body {
   
   #header-title {
     margin-left: 10px;
-    font-size: 2.2rem;
+    font-size: 1.8rem;
     color: #ffffff;
   }
   
@@ -495,7 +498,7 @@ body {
     display: flex;
     justify-content: center;
     margin-left: 0px;
-    margin-bottom: 70px;
+    margin-bottom: 0px;
   }
   
   .logoform #logo {

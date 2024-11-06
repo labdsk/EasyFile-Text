@@ -37,20 +37,21 @@ body {
 
 /* Main container styles */
 .main-container {
-  background-color: #f5f5f593;
-  margin: 20px auto;
+  background-color: #ffffff00;
+  margin: 10px auto;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
+  max-width: 1000px;
 }
 
 /* Upload container styles */
 .uploadcontainer {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  padding: 5px 25px;
+  margin-top: 20px;
+  margin-bottom: -20px;
+  justify-content: space-between;
 }
 
 .uploadcontainer label {
@@ -62,19 +63,22 @@ body {
   margin-bottom: 10px;
 }
 
-.uploadcontainer button {
-  padding: 10px 20px;
+#uploadButton {
+  padding: 8px 20px;
   font-size: 1rem;
+  margin-top: 30px;
   color: #ffffff;
-  background-color: #5c7486;
+  width: 100%;
+  background-color: #103a58;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: 0.3s ease;
 }
 
-.uploadcontainer button:hover {
-  background-color: #445766;
+#uploadButton:hover {
+  background-color: #144466;
+  transform: scale(1.02);
 }
 
 /* File list styles */
@@ -113,7 +117,7 @@ body {
 }
 
 .filelist button {
-  background-color: #dc3545;
+  background-color: red;
   border: none;
   color: #ffffff;
   padding: 5px 10px;
@@ -128,9 +132,21 @@ body {
 }
 
 #clearBtn {
+  padding: 7px 20px;
+  width: 100%;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #ffffff;
+  background-color: red;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+#saveBtn {
   padding: 10px 20px;
   width: 100%;
-  margin-top: 20px;
   margin-bottom: 20px;
   font-size: 1rem;
   color: #ffffff;
@@ -138,7 +154,13 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: 0.3s ease;
+}
+#clearBtn:hover {
+  transform: scale(1.02);
+}
+#saveBtn:hover {
+  transform: scale(1.02);
 }
 
 
@@ -184,4 +206,128 @@ textarea:focus {
 
 #homeBtn:hover {
   transform: scale(1.15);
+}
+
+
+
+
+
+
+
+/* Table Container */
+.filelist-table {
+  width: 100%;
+  margin-top: 30px;
+  border-collapse: collapse;
+  background-color: #ffffff81;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.filelist-table th, .filelist-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+
+
+.filelist-table td a {
+  text-decoration: none;
+  color: #4a90e2;
+  transition: color 0.3s ease;
+}
+
+.filelist-table td a:hover {
+  color: #2a82c7;
+}
+
+.filelist-table td button {
+  background-color: red; 
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.filelist-table td button:hover {
+  background-color: #df1600;
+  transform: scale(1.03);
+}
+
+.filenameth {
+  width: 60%;
+  background-color: #445563;
+  color: white;
+  font-weight: bold;
+}
+.filenameth2 {
+  width: 45%;
+  background-color: #98a6b1;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+}
+
+.centerh2 {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+.linkaction {
+  text-align: center;
+  justify-content: center;
+  background-color: #445563;
+  color: white;
+  font-weight: bold;
+}
+.linkaction3 {
+  text-align: center;
+  justify-content: center;
+  background-color: #98a6b1;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+}
+.centertr .linkaction {
+  text-align: center;
+  justify-content: center;
+}
+.centertr2 .linkaction2 {
+  text-align: center;
+  justify-content: center;
+}
+
+
+
+
+.custom-file-label {
+  display: inline-block;
+  padding: 10px;
+  margin-top: 20px;
+  width: 100%;
+  text-align: center;
+  background-color: #a0a0a034;
+  color: #000000;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.custom-file-label:hover {
+  transform: scale(1.03);
+  background-color: #2e2e2e1e;
+}
+
+table, th, td {
+  font-family: Arial, sans-serif;
+}
+
+
+.choosefilecontainer {
+  background-color: #ffffff96;
+  padding: 5px;
+  margin-bottom: 30px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.295); /* Subtle shadow for depth */
 }

@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    <!--Header------------------------------------------------------------------------------->
     <header id="main-header">
         <h1 id="header-title">Izify - EasyFile & Text</h1>
         <button id="homeBtn" onclick="goHome()" title="Home Page"><i class="fa-solid fa-house"></i></button>
@@ -16,161 +15,223 @@
 
     <script>
         function goHome() {
-        window.location.href = 'index.html';
-    }
+            window.location.href = 'index.html';
+        }
     </script>
     
     <div class="main-container">
-        <div class="uploadcontainer">
-            <label for="file">Upload Files</label>
-            <br>
-            <input type="file" id="fileInput">
-            <br><br>
-            <button id="uploadButton">Upload File</button>
+        <div class="choosefilecontainer">
+            <div class="uploadcontainer">
+                <input type="file" id="fileInput" multiple hidden>
+                <label for="fileInput" class="custom-file-label">Choose Files</label>
+                <span id="fileNames" style="display: block; margin-top: 10px; color: #000000;"></span>
+                <br><br>
+            </div>
+    
+            <div class="main-container">
+                <table id="fileTable" style="width: 100%; margin-top: 10px; color: #333; border-collapse: collapse; display: none;">
+                    <thead>
+                        <tr>
+                            <th class="filenameth2" style="border-bottom: 1px solid #ddd; padding: 8px; text-align: left;">File Name</th>
+                            <th class="linkaction3" style="border-bottom: 1px solid #ddd; padding: 8px; text-align: left;">File Size (KB)</th>
+                            <th class="linkaction3" style="border-bottom: 1px solid #ddd; padding: 8px; text-align: left;">File Type</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button style="display: none;" id="uploadButton">Upload Files</button>
+            </div>
         </div>
 
-        <div class="filelist" id="fileListContainer"></div>
-    </div>
+        <div class="choosefilecontainer">
+            <div class="main-container">
+                <table class="filelist-table" id="fileListContainer">
+                    <thead>
+                        <div class="centerh2">
+                            <h2>Uploaded Files</h2>
+                        </div>
+                        <tr class="centertr">
+                            <th class="filenameth">File Name</th>
+                            <th class="linkaction">Link</th>
+                            <th class="linkaction">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileListBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-    <div class="main-container">
-        <button id="clearBtn">Clear</button>
-        <textarea id="textArea" cols="30" rows="10"></textarea>
-    </div>
+        <div class="choosefilecontainer">
+            <div class="main-container">
+                <button id="clearBtn">Clear</button>
+                <button id="saveBtn">Save</button>
+                <textarea id="textArea" cols="30" rows="10"></textarea>
+            </div>
+        </div>
 
-    <script>
-        document.getElementById('clearBtn').addEventListener('click', function() {
-            var textArea = document.getElementById('textArea');
-            textArea.value = ''; // Clear the text
-            textArea.focus();    // Set focus on the textarea
-        });
-    </script>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
-        import { getDatabase, ref, set, push, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
-        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-storage.js";
-    
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDegHpAyVTt3eajfaOb9uZoXMvSDepK_DU",
-            authDomain: "easy-file-upload.firebaseapp.com",
-            databaseURL: "https://easy-file-upload-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "easy-file-upload",
-            storageBucket: "easy-file-upload.appspot.com",
-            messagingSenderId: "554423120767",
-            appId: "1:554423120767:web:d721461f9120ebbfd6604a"
-        };
-    
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
-        const storage = getStorage(app);
-    
-        let currentUserUid = null;
-    
-        // Monitor authentication state
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUserUid = user.uid;
-                loadFiles(); // Load files when user is authenticated
-                loadText();  // Load text when user is authenticated
-            } else {
-                alert('No user is signed in.');
-                // Optionally, redirect to login page
-            }
-        });
-    
-        // Upload button event listener
-        document.getElementById('uploadButton').addEventListener('click', () => {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-    
-            if (file) {
-                uploadFile(file);
-            } else {
-                alert('Please select a file to upload.');
-            }
-        });
-    
-        // Textarea event listener
-        document.getElementById('textArea').addEventListener('input', (event) => {
-            if (currentUserUid) {
-                const text = event.target.value;
-                saveText(text);
-            }
-        });
-    
-        function uploadFile(file) {
-            if (!currentUserUid) {
-                alert('User is not authenticated.');
-                return;
-            }
-    
-            // Create a new unique ID in the Realtime Database
-            const fileListRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/uploadedFiles');
-            const newFileRef = push(fileListRef);
-            const fileId = newFileRef.key;
-    
-            // Create a storage reference with the admin's UID and the file ID
-            const storageReference = storageRef(storage, 'uploads/' + currentUserUid + '/' + fileId);
-            const uploadTask = uploadBytesResumable(storageReference, file);
-    
-            // Monitor upload progress
-            uploadTask.on('state_changed', (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-            }, (error) => {
-                console.error('Upload failed:', error);
-            }, () => {
-                // Upload completed successfully, now store file metadata in the database
-                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    saveFileMetadata(fileId, file.name, downloadURL);
-                });
+        <script>
+            const fileInput = document.getElementById("fileInput");
+            const fileTable = document.getElementById("fileTable");
+            const fileTableBody = document.querySelector("#fileTable tbody");
+            const uploadButton = document.getElementById("uploadButton");
+        
+            fileInput.addEventListener("change", () => {
+                // Clear previous rows
+                fileTableBody.innerHTML = "";
+        
+                // Check if files are selected
+                if (fileInput.files.length > 0) {
+                    fileTable.style.display = "table";    // Show the table
+                    uploadButton.style.display = "inline-block";  // Show the upload button
+        
+                    Array.from(fileInput.files).forEach(file => {
+                        const row = document.createElement("tr");
+        
+                        const nameCell = document.createElement("td");
+                        nameCell.textContent = file.name;
+                        nameCell.style.padding = "8px";
+                        row.appendChild(nameCell);
+        
+                        const sizeCell = document.createElement("td");
+                        sizeCell.textContent = (file.size / 1024).toFixed(2); // KB
+                        sizeCell.style.padding = "8px";
+                        row.appendChild(sizeCell);
+        
+                        const typeCell = document.createElement("td");
+                        typeCell.textContent = file.type || "N/A";
+                        typeCell.style.padding = "8px";
+                        row.appendChild(typeCell);
+        
+                        fileTableBody.appendChild(row);
+                    });
+                } else {
+                    fileTable.style.display = "none";      // Hide the table if no files are chosen
+                    uploadButton.style.display = "none";   // Hide the upload button if no files are chosen
+                }
             });
-        }
-    
-        function saveFileMetadata(fileId, fileName, downloadURL) {
-            if (currentUserUid) {
-                const newFileRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/uploadedFiles/' + fileId);
-    
-                set(newFileRef, {
-                    fileName: fileName,
-                    downloadURL: downloadURL,
-                    uploadedAt: new Date().toISOString()
-                }).then(() => {
-                    loadFiles(); // Reload the file list
-                }).catch((error) => {
-                    console.error('Error saving file metadata:', error);
+        </script>
+
+        <script>
+            document.getElementById('clearBtn').addEventListener('click', function() {
+                const textArea = document.getElementById('textArea');
+                textArea.value = '';
+                textArea.focus();
+            });
+        </script>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+            import { getDatabase, ref, set, push, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+            import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+            import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-storage.js";
+
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyDegHpAyVTt3eajfaOb9uZoXMvSDepK_DU",
+                authDomain: "easy-file-upload.firebaseapp.com",
+                databaseURL: "https://easy-file-upload-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "easy-file-upload",
+                storageBucket: "easy-file-upload.appspot.com",
+                messagingSenderId: "554423120767",
+                appId: "1:554423120767:web:d721461f9120ebbfd6604a"
+            };
+
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+            const auth = getAuth(app);
+            const storage = getStorage(app);
+
+            let currentUserUid = null;
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUserUid = user.uid;
+                    loadFiles();
+                    loadText();
+                } else {
+                    alert('No user is signed in.');
+                }
+            });
+
+            document.getElementById('uploadButton').addEventListener('click', () => {
+                const fileInput = document.getElementById('fileInput');
+                const files = fileInput.files;
+                
+                if (files.length > 0) {
+                    for (const file of files) {
+                        uploadFile(file);
+                    }
+                } else {
+                    alert('Please select one or more files to upload.');
+                }
+            });
+
+            function uploadFile(file) {
+                if (!currentUserUid) {
+                    alert('User is not authenticated.');
+                    return;
+                }
+
+                const fileListRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/uploadedFiles');
+                const newFileRef = push(fileListRef);
+                const fileId = newFileRef.key;
+
+                const storageReference = storageRef(storage, `uploads/${currentUserUid}/${fileId}/${file.name}`);
+                const uploadTask = uploadBytesResumable(storageReference, file);
+
+                uploadTask.on('state_changed', (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                }, (error) => {
+                    console.error('Upload failed:', error);
+                }, () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        saveFileMetadata(fileId, file.name, downloadURL);
+                    });
                 });
-            } else {
-                alert('User is not authenticated.');
             }
-        }
-    
-        function displayFile(fileId, fileName, downloadURL) {
-            const fileListContainer = document.getElementById('fileListContainer');
-            const fileElement = document.createElement('div');
-            fileElement.innerHTML = `
-                <p>
-                    <a href="${downloadURL}" target="_blank">${fileName}</a>
-                    <button onclick="deleteFile('${fileId}', '${fileName}')">Delete</button>
-                </p>`;
-            fileListContainer.appendChild(fileElement);
-        }
-    
-        // Download file function
-        window.downloadFile = (downloadURL) => {
-            window.open(downloadURL, '_blank');
-        };
-    
-        // Delete file function
-        window.deleteFile = (fileId, fileName) => {
-            if (confirm(`Are you sure you want to delete ${fileName}?`)) {
-                const fileRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/uploadedFiles/' + fileId);
-                const storageReference = storageRef(storage, 'uploads/' + currentUserUid + '/' + fileId);
-    
+
+            function saveFileMetadata(fileId, fileName, downloadURL) {
+                if (currentUserUid) {
+                    const newFileRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/uploadedFiles/' + fileId);
+
+                    set(newFileRef, {
+                        fileName: fileName,
+                        downloadURL: downloadURL,
+                        uploadedAt: new Date().toISOString()
+                    }).then(() => {
+                        loadFiles();
+                    }).catch((error) => {
+                        console.error('Error saving file metadata:', error);
+                    });
+                } else {
+                    alert('User is not authenticated.');
+                }
+            }
+
+            function displayFile(fileId, fileName, downloadURL) {
+                const fileListBody = document.getElementById('fileListBody');
+                const row = document.createElement('tr');
+                row.classList.add('centertr2');
+
+                row.innerHTML = `
+                    <td>${fileName}</td>
+                    <td class="linkaction2"><a href="${downloadURL}" download="${fileName}" target="_blank">Download</a></td>
+                    <td class="linkaction2">
+                        <button class="deleteBtn" onclick="deleteFile('${fileId}', '${fileName}')">Delete</button>
+                    </td>
+                `;
+
+                fileListBody.appendChild(row);
+            }
+            
+            // Delete file function
+            window.deleteFile = (fileId, fileName) => {
+                const fileRef = ref(db, `AdminsAuthList/${currentUserUid}/uploadedFiles/${fileId}`);
+                const storageReference = storageRef(storage, `uploads/${currentUserUid}/${fileId}/${fileName}`);
+
                 // Delete from storage
                 deleteObject(storageReference).then(() => {
                     // Delete from database
@@ -182,45 +243,51 @@
                 }).catch((error) => {
                     console.error('Error deleting file:', error);
                 });
-            }
-        };
-    
-        // Load files from database
-        function loadFiles() {
-            const fileListContainer = document.getElementById('fileListContainer');
-            fileListContainer.innerHTML = ''; // Clear current file list
-    
-            const fileListRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/uploadedFiles');
-            onValue(fileListRef, (snapshot) => {
-                snapshot.forEach((childSnapshot) => {
-                    const fileId = childSnapshot.key;
-                    const fileData = childSnapshot.val();
-                    displayFile(fileId, fileData.fileName, fileData.downloadURL);
+            };
+
+
+            
+            function loadFiles() {
+                const fileListBody = document.getElementById('fileListBody');
+                fileListBody.innerHTML = '';
+
+                const fileListRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/uploadedFiles');
+                onValue(fileListRef, (snapshot) => {
+                    snapshot.forEach((childSnapshot) => {
+                        const fileId = childSnapshot.key;
+                        const fileData = childSnapshot.val();
+                        displayFile(fileId, fileData.fileName, fileData.downloadURL);
+                    });
                 });
+            }
+
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                const textArea = document.getElementById('textArea');
+                const textContent = textArea.value;
+                saveText(textContent);
             });
-        }
-    
-        // Save text to database
-        function saveText(text) {
-            const textRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/text');
-            update(textRef, {
-                content: text,
-                updatedAt: new Date().toISOString()
-            }).catch((error) => {
-                console.error('Error saving text:', error);
-            });
-        }
-    
-        // Load text from database
-        function loadText() {
-            const textRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/text');
-            onValue(textRef, (snapshot) => {
-                const textData = snapshot.val();
-                if (textData && textData.content) {
-                    document.getElementById('textArea').value = textData.content;
-                }
-            });
-        }
-    </script>
+
+
+            function saveText(text) {
+                const textRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/text');
+                update(textRef, {
+                    content: text,
+                    updatedAt: new Date().toISOString()
+                }).catch((error) => {
+                    console.error('Error saving text:', error);
+                });
+            }
+
+            function loadText() {
+                const textRef = ref(db, 'AdminsAuthList/' + currentUserUid + '/text');
+                onValue(textRef, (snapshot) => {
+                    const textData = snapshot.val();
+                    if (textData && textData.content) {
+                        document.getElementById('textArea').value = textData.content;
+                    }
+                });
+            }
+        </script>
+    </div>
 </body>
 </html>
